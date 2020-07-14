@@ -8,6 +8,7 @@ import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
 import { addPlace } from '../store/placesSlice';
 import Colors from '../Constants/Colors';
 import ImageSelector from '../components/ImageSelector';
+import LocationSelector from '../components/LocationSelector';
 
 interface PlaceFormValues {
   title: string;
@@ -48,6 +49,8 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
         />
 
         <ImageSelector onImageTaken={uri => setFieldValue('imageUri', uri)} />
+
+        <LocationSelector />
 
         <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
       </View>

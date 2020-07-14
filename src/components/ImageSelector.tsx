@@ -15,9 +15,11 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({ onImageTaken }) => {
   const verifyPermission = async () => {
     const result = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
     if (result.status !== Permissions.PermissionStatus.GRANTED) {
-      Alert.alert('Insufficient permissions!', 'You need to grant permissions to use this app.', [
-        { text: 'Okay' },
-      ]);
+      Alert.alert(
+        'Insufficient permissions!',
+        'You need to grant camera permissions to use this app.',
+        [{ text: 'Okay' }]
+      );
       return false;
     }
     return true;

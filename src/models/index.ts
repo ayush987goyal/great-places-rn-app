@@ -6,3 +6,8 @@ export interface Place {
   lat: number;
   lng: number;
 }
+
+export interface Coords {
+  lat: number;
+  lng: number;
+}
