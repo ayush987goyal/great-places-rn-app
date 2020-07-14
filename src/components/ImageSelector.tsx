@@ -5,7 +5,11 @@ import * as ImagePicker from 'expo-image-picker';
 
 import Colors from '../Constants/Colors';
 
-const ImageSelector = () => {
+interface ImageSelectorProps {
+  onImageTaken: (uri: string) => void;
+}
+
+const ImageSelector: React.FC<ImageSelectorProps> = ({ onImageTaken }) => {
   const [pickedImage, setPickedImage] = useState<string>();
 
   const verifyPermission = async () => {
@@ -31,13 +35,14 @@ const ImageSelector = () => {
 
     if (!image.cancelled) {
       setPickedImage(image.uri);
+      onImageTaken(image.uri);
     }
   };
 
   return (
     <View style={styles.imagePicker}>
       <View style={styles.imagePreview}>
-        {pickedImage ? (
+        {!pickedImage ? (
           <Text>No image picked yet.</Text>
         ) : (
           <Image style={styles.image} source={{ uri: pickedImage }} />
@@ -52,6 +57,7 @@ const ImageSelector = () => {
 const styles = StyleSheet.create({
   imagePicker: {
     alignItems: 'center',
+    marginBottom: 15,
   },
   imagePreview: {
     width: '100%',

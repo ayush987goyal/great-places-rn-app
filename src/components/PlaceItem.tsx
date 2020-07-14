@@ -12,7 +12,7 @@ interface PlaceItemProps {
 const PlaceItem: React.FC<PlaceItemProps> = ({ place, onSelect }) => {
   return (
     <TouchableOpacity style={styles.placeItem} onPress={onSelect}>
-      <Image style={styles.image} source={{ uri: '' }} />
+      <Image style={styles.image} source={{ uri: place.imageUri }} />
 
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{place.title}</Text>

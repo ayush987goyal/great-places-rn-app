@@ -11,6 +11,7 @@ import ImageSelector from '../components/ImageSelector';
 
 interface PlaceFormValues {
   title: string;
+  imageUri: string;
 }
 
 interface NewPlaceScreenProps {
@@ -21,9 +22,9 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const { values, setFieldValue, handleSubmit } = useFormik<PlaceFormValues>({
-    initialValues: { title: '' },
+    initialValues: { title: '', imageUri: '' },
     onSubmit: formValues => {
-      dispatch(addPlace({ title: formValues.title }));
+      dispatch(addPlace({ title: formValues.title, imageUri: formValues.imageUri }));
       navigation.goBack();
     },
   });
@@ -38,7 +39,7 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
           onChangeText={t => setFieldValue('title', t)}
         />
 
-        <ImageSelector />
+        <ImageSelector onImageTaken={uri => setFieldValue('imageUri', uri)} />
 
         <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
       </View>
