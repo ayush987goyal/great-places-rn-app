@@ -7,6 +7,7 @@ import { useFormik } from 'formik';
 import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
 import { addPlace } from '../store/placesSlice';
 import Colors from '../Constants/Colors';
+import ImageSelector from '../components/ImageSelector';
 
 interface PlaceFormValues {
   title: string;
@@ -36,6 +37,8 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
           value={values.title}
           onChangeText={t => setFieldValue('title', t)}
         />
+
+        <ImageSelector />
 
         <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
       </View>
