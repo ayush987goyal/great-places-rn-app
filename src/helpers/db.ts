@@ -45,3 +45,21 @@ export function insertPlace({
     });
   });
 }
+
+export function fetchPlaces(): Promise<SQLite.SQLResultSet> {
+  return new Promise((resolve, reject) => {
+    db.transaction(txn => {
+      txn.executeSql(
+        'SELECT * FROM places;',
+        [],
+        (_, result) => {
+          resolve(result);
+        },
+        (_, err) => {
+          reject(err);
+          return false;
+        }
+      );
+    });
+  });
+}

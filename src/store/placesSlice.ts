@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as FileSystem from 'expo-file-system';
 
 import { Place } from '../models';
-import { insertPlace } from '../helpers/db';
+import { insertPlace, fetchPlaces } from '../helpers/db';
 
 interface PlacesState {
   places: Place[];
@@ -21,15 +21,24 @@ export const addPlace = createAsyncThunk('places/addPlace', async (payload: Omit
       from: payload.imageUri,
       to: newPath,
     });
+    payload.imageUri = newPath;
     const { insertId } = await insertPlace(payload);
 
-    const place: Place = {
-      ...payload,
-      id: insertId.toString(),
-      imageUri: newPath,
-    };
+    const place: Place = { ...payload, id: insertId };
 
     return place;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+});
+
+export const loadPlaces = createAsyncThunk('places/loadPlaces', async () => {
+  try {
+    const { rows } = await fetchPlaces();
+
+    const places: Place[] = (rows as any)._array;
+    return places;
   } catch (err) {
     console.log(err);
     throw err;
@@ -41,9 +50,13 @@ const placesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder =>
-    builder.addCase(addPlace.fulfilled, (state, action) => {
-      state.places.push(action.payload);
-    }),
+    builder
+      .addCase(addPlace.fulfilled, (state, action) => {
+        state.places.push(action.payload);
+      })
+      .addCase(loadPlaces.fulfilled, (state, action) => {
+        state.places = action.payload;
+      }),
 });
 
 export default placesSlice.reducer;
