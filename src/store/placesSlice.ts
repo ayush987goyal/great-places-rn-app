@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as FileSystem from 'expo-file-system';
 
 import { Place } from '../models';
+import { insertPlace } from '../helpers/db';
 
 interface PlacesState {
   places: Place[];
@@ -20,9 +21,15 @@ export const addPlace = createAsyncThunk('places/addPlace', async (payload: Omit
       from: payload.imageUri,
       to: newPath,
     });
+    const { insertId } = await insertPlace(payload);
 
-    payload.imageUri = newPath;
-    return payload;
+    const place: Place = {
+      ...payload,
+      id: insertId.toString(),
+      imageUri: newPath,
+    };
+
+    return place;
   } catch (err) {
     console.log(err);
     throw err;
@@ -35,10 +42,7 @@ const placesSlice = createSlice({
   reducers: {},
   extraReducers: builder =>
     builder.addCase(addPlace.fulfilled, (state, action) => {
-      state.places.push({
-        id: new Date().toISOString(),
-        ...action.payload,
-      });
+      state.places.push(action.payload);
     }),
 });
 

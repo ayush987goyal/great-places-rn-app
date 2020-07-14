@@ -24,7 +24,15 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
   const { values, setFieldValue, handleSubmit } = useFormik<PlaceFormValues>({
     initialValues: { title: '', imageUri: '' },
     onSubmit: formValues => {
-      dispatch(addPlace({ title: formValues.title, imageUri: formValues.imageUri }));
+      dispatch(
+        addPlace({
+          title: formValues.title,
+          imageUri: formValues.imageUri,
+          address: 'Dummy address',
+          lat: 15.6,
+          lng: 12.3,
+        })
+      );
       navigation.goBack();
     },
   });
