@@ -7,6 +7,7 @@ import PlaceDetailsScreen from '../screens/PlaceDetailsScreen';
 import NewPlaceScreen from '../screens/NewPlaceScreen';
 import MapScreen from '../screens/MapScreen';
 import Colors from '../Constants/Colors';
+import { Place } from '../models';
 
 const PlacesStack = createStackNavigator();
 
@@ -34,7 +35,7 @@ const PlacesStackScreen = () => (
 
 export type PlacesStackScreenParamsList = {
   Places: undefined;
-  PlaceDetail: undefined;
+  PlaceDetail: { place: Place };
   NewPlace: undefined;
   Map: undefined;
 };
