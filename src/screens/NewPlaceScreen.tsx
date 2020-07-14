@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, TextInput, ScrollView, Button, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useDispatch } from 'react-redux';
@@ -9,10 +9,12 @@ import { addPlace } from '../store/placesSlice';
 import Colors from '../Constants/Colors';
 import ImageSelector from '../components/ImageSelector';
 import LocationSelector from '../components/LocationSelector';
+import { Coords } from '../models';
 
 interface PlaceFormValues {
   title: string;
   imageUri: string;
+  location: Coords;
 }
 
 interface NewPlaceScreenProps {
@@ -23,20 +25,30 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const { values, setFieldValue, handleSubmit } = useFormik<PlaceFormValues>({
-    initialValues: { title: '', imageUri: '' },
+    initialValues: {
+      title: '',
+      imageUri: '',
+      location: { lat: 0, lng: 0 },
+    },
     onSubmit: formValues => {
       dispatch(
         addPlace({
           title: formValues.title,
           imageUri: formValues.imageUri,
-          address: 'Dummy address',
-          lat: 15.6,
-          lng: 12.3,
+          lat: formValues.location.lat,
+          lng: formValues.location.lng,
         })
       );
       navigation.goBack();
     },
   });
+
+  const locationPickedHandler = useCallback(
+    (cords: Coords) => {
+      setFieldValue('location', cords);
+    },
+    [setFieldValue]
+  );
 
   return (
     <ScrollView>
@@ -50,7 +62,7 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
 
         <ImageSelector onImageTaken={uri => setFieldValue('imageUri', uri)} />
 
-        <LocationSelector />
+        <LocationSelector onLocationPicked={locationPickedHandler} />
 
         <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
       </View>

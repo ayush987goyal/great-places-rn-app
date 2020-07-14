@@ -16,7 +16,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place, onSelect }) => {
 
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{place.title}</Text>
-        <Text style={styles.address}>{}</Text>
+        <Text style={styles.address}>{place.address}</Text>
       </View>
     </TouchableOpacity>
   );

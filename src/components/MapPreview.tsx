@@ -1,28 +1,30 @@
 import React from 'react';
-import { StyleSheet, View, Image, ViewStyle } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, ViewStyle } from 'react-native';
 
 import { Coords } from '../models';
-import { googleApiKey } from '../Constants/env';
+
+import { getMapPreviewImageUrl } from '../service/service';
 
 interface MapPreviewProps {
   style?: ViewStyle;
   location?: Coords;
+  onPress?: () => void;
 }
 
-const MapPreview: React.FC<MapPreviewProps> = ({ style, location, children }) => {
+const MapPreview: React.FC<MapPreviewProps> = ({ style, location, onPress, children }) => {
   let imagePreviewUrl = '';
   if (location) {
-    imagePreviewUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${location.lat},${location.lng}&zoom=14&size=400x200&maptype=roadmap&markers=color:blue%7Clabel:S%7C40.702147,-74.015794&markers=color:red%7Clabel:A%7C${location.lat},${location.lng}&key=${googleApiKey}`;
+    imagePreviewUrl = getMapPreviewImageUrl(location);
   }
 
   return (
-    <View style={{ ...styles.mapPreview, ...style }}>
+    <TouchableOpacity style={{ ...styles.mapPreview, ...style }} onPress={onPress}>
       {imagePreviewUrl ? (
         <Image style={styles.mapImage} source={{ uri: imagePreviewUrl }} />
       ) : (
         children
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

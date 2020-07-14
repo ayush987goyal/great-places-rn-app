@@ -1,17 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ActivityIndicator, Alert } from 'react-native';
+import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 
-import Colors from '../Constants/Colors';
 import { Coords } from '../models';
+import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
+import Colors from '../Constants/Colors';
 import MapPreview from './MapPreview';
 
-interface LocationSelectorProps {}
+interface LocationSelectorProps {
+  onLocationPicked: (l: Coords) => void;
+}
 
-const LocationSelector: React.FC<LocationSelectorProps> = () => {
+const LocationSelector: React.FC<LocationSelectorProps> = ({ onLocationPicked }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [pickedLocation, setPickedLocation] = useState<Coords>();
+
+  const navigation = useNavigation<NavigationProp<PlacesStackScreenParamsList, 'NewPlace'>>();
+  const route = useRoute<RouteProp<PlacesStackScreenParamsList, 'NewPlace'>>();
+  const mapPickedLocation = route.params?.pickedLocation;
+
+  useEffect(() => {
+    if (mapPickedLocation) {
+      setPickedLocation(mapPickedLocation);
+      onLocationPicked(mapPickedLocation);
+    }
+  }, [mapPickedLocation, onLocationPicked]);
 
   const verifyPermission = async () => {
     const result = await Permissions.askAsync(Permissions.LOCATION);
@@ -34,6 +49,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = () => {
       setIsFetching(true);
       const location = await Location.getCurrentPositionAsync({ timeout: 5000 });
       setPickedLocation({ lat: location.coords.latitude, lng: location.coords.longitude });
+      onLocationPicked({ lat: location.coords.latitude, lng: location.coords.longitude });
     } catch (err) {
       Alert.alert(
         'Failed to fetch location!',
@@ -45,9 +61,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = () => {
     }
   };
 
+  const pickOnMapHandler = () => {
+    navigation.navigate('Map');
+  };
+
   return (
     <View style={styles.locationPicker}>
-      <MapPreview style={styles.mapPreview} location={pickedLocation}>
+      <MapPreview style={styles.mapPreview} location={pickedLocation} onPress={pickOnMapHandler}>
         {isFetching ? (
           <ActivityIndicator color={Colors.primary} />
         ) : (
@@ -55,7 +75,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = () => {
         )}
       </MapPreview>
 
-      <Button title="Get Location" color={Colors.primary} onPress={getLocationHandler} />
+      <View style={styles.actions}>
+        <Button title="Get Location" color={Colors.primary} onPress={getLocationHandler} />
+        <Button title="Pick on Map" color={Colors.primary} onPress={pickOnMapHandler} />
+      </View>
     </View>
   );
 };
@@ -70,8 +93,11 @@ const styles = StyleSheet.create({
     height: 150,
     borderColor: '#ccc',
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
   },
 });
 
