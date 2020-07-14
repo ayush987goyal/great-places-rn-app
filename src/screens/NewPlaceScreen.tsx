@@ -1,17 +1,30 @@
 import React from 'react';
 import { View, Text, TextInput, ScrollView, Button, StyleSheet } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
 
+import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
+import { addPlace } from '../store/placesSlice';
 import Colors from '../Constants/Colors';
 
 interface PlaceFormValues {
   title: string;
 }
 
-const NewPlaceScreen = () => {
+interface NewPlaceScreenProps {
+  navigation: StackNavigationProp<PlacesStackScreenParamsList, 'NewPlace'>;
+}
+
+const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const { values, setFieldValue, handleSubmit } = useFormik<PlaceFormValues>({
     initialValues: { title: '' },
-    onSubmit: () => {},
+    onSubmit: formValues => {
+      dispatch(addPlace({ title: formValues.title }));
+      navigation.goBack();
+    },
   });
 
   return (
