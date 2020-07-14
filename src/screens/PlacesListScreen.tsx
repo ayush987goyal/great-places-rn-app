@@ -25,7 +25,7 @@ const PlacesListScreen: React.FC<PlacesListScreenProps> = ({ navigation }) => {
           <Item
             title="Add Place"
             iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add'}
-            onPress={() => navigation.navigate('NewPlace')}
+            onPress={() => navigation.navigate('NewPlace', {})}
           />
         </HeaderButtons>
       ),

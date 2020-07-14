@@ -1,50 +1,67 @@
 import React, { useState, useLayoutEffect, useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import MapView, { Region, MapEvent, Marker, LatLng } from 'react-native-maps';
+import { RouteProp } from '@react-navigation/native';
+import MapView, { Region, MapEvent, Marker } from 'react-native-maps';
 
 import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
 import Colors from '../Constants/Colors';
-
-const mapRegion: Region = {
-  latitude: 37.78,
-  longitude: -122.43,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
-};
+import { Coords } from '../models';
 
 interface MapScreenScreenProps {
   navigation: StackNavigationProp<PlacesStackScreenParamsList, 'Map'>;
+  route: RouteProp<PlacesStackScreenParamsList, 'Map'>;
 }
 
-const MapScreen: React.FC<MapScreenScreenProps> = ({ navigation }) => {
-  const [selectedLocation, setSelectedLocation] = useState<LatLng>();
+const MapScreen: React.FC<MapScreenScreenProps> = ({ navigation, route }) => {
+  const { readonly, initialLocation } = route.params;
+
+  const [selectedLocation, setSelectedLocation] = useState<Coords | undefined>(initialLocation);
 
   const savePickedLocationHandler = useCallback(() => {
     if (!selectedLocation) return;
 
     navigation.navigate('NewPlace', {
-      pickedLocation: { lat: selectedLocation.latitude, lng: selectedLocation.longitude },
+      pickedLocation: selectedLocation,
     });
   }, [navigation, selectedLocation]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity style={styles.headerButton} onPress={savePickedLocationHandler}>
-          <Text style={styles.headerButtonText}>Save</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: () =>
+        !readonly && (
+          <TouchableOpacity style={styles.headerButton} onPress={savePickedLocationHandler}>
+            <Text style={styles.headerButtonText}>Save</Text>
+          </TouchableOpacity>
+        ),
     });
-  }, [navigation, savePickedLocationHandler]);
+  }, [navigation, readonly, savePickedLocationHandler]);
 
-  const selectLocationHandler = useCallback((event: MapEvent) => {
-    setSelectedLocation(event.nativeEvent.coordinate);
-  }, []);
+  const selectLocationHandler = useCallback(
+    (event: MapEvent) => {
+      if (readonly) return;
+
+      const { latitude, longitude } = event.nativeEvent.coordinate;
+      setSelectedLocation({ lat: latitude, lng: longitude });
+    },
+    [readonly]
+  );
+
+  const mapRegion: Region = {
+    latitude: initialLocation ? initialLocation.lat : 37.78,
+    longitude: initialLocation ? initialLocation.lng : -122.43,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
 
   return (
     <MapView region={mapRegion} style={styles.map} onPress={selectLocationHandler}>
-      {selectedLocation && <Marker title="Picked Location" coordinate={selectedLocation} />}
+      {selectedLocation && (
+        <Marker
+          title="Picked Location"
+          coordinate={{ latitude: selectedLocation.lat, longitude: selectedLocation.lng }}
+        />
+      )}
     </MapView>
   );
 };

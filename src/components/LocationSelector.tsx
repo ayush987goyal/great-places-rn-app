@@ -19,7 +19,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onLocationPicked })
 
   const navigation = useNavigation<NavigationProp<PlacesStackScreenParamsList, 'NewPlace'>>();
   const route = useRoute<RouteProp<PlacesStackScreenParamsList, 'NewPlace'>>();
-  const mapPickedLocation = route.params?.pickedLocation;
+  const { pickedLocation: mapPickedLocation } = route.params;
 
   useEffect(() => {
     if (mapPickedLocation) {
@@ -62,7 +62,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({ onLocationPicked })
   };
 
   const pickOnMapHandler = () => {
-    navigation.navigate('Map');
+    navigation.navigate('Map', {});
   };
 
   return (

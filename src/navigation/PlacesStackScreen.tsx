@@ -37,7 +37,7 @@ export type PlacesStackScreenParamsList = {
   Places: undefined;
   PlaceDetail: { place: Place };
   NewPlace: { pickedLocation?: Coords };
-  Map: undefined;
+  Map: { readonly?: boolean; initialLocation?: Coords };
 };
 
 export default PlacesStackScreen;
