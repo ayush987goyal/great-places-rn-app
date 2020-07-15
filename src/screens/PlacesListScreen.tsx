@@ -1,22 +1,20 @@
-import React, { useLayoutEffect, useEffect } from 'react';
-import { FlatList, Platform } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { FlatList, View, ActivityIndicator, Platform } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { useSelector, useDispatch } from 'react-redux';
 
 import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
-import { RootState } from '../store';
-import { loadPlaces } from '../store/placesSlice';
+import { usePlaces } from '../service/query-hooks';
 import CustomHeaderButton from '../components/CustomHeaderButton';
 import PlaceItem from '../components/PlaceItem';
+import Colors from '../Constants/Colors';
 
 interface PlacesListScreenProps {
   navigation: StackNavigationProp<PlacesStackScreenParamsList, 'Places'>;
 }
 
 const PlacesListScreen: React.FC<PlacesListScreenProps> = ({ navigation }) => {
-  const places = useSelector((state: RootState) => state.places.places);
-  const dispatch = useDispatch();
+  const { isLoading, data: places } = usePlaces();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -32,9 +30,13 @@ const PlacesListScreen: React.FC<PlacesListScreenProps> = ({ navigation }) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    dispatch(loadPlaces());
-  }, [dispatch]);
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <FlatList

@@ -1,15 +1,24 @@
 import React, { useCallback } from 'react';
-import { View, Text, TextInput, ScrollView, Button, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  Button,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { useDispatch } from 'react-redux';
 import { useFormik } from 'formik';
+import { useMutation, queryCache } from 'react-query';
 
 import { PlacesStackScreenParamsList } from '../navigation/PlacesStackScreen';
-import { addPlace } from '../store/placesSlice';
+import { Coords } from '../models';
+import { savePlaceToDb } from '../service/service';
+import { FETCH_PLACES_KEY } from '../service/query-hooks';
 import Colors from '../Constants/Colors';
 import ImageSelector from '../components/ImageSelector';
 import LocationSelector from '../components/LocationSelector';
-import { Coords } from '../models';
 
 interface PlaceFormValues {
   title: string;
@@ -22,7 +31,12 @@ interface NewPlaceScreenProps {
 }
 
 const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
-  const dispatch = useDispatch();
+  const [mutate, { isLoading }] = useMutation(savePlaceToDb, {
+    onSuccess: () => {
+      queryCache.invalidateQueries(FETCH_PLACES_KEY);
+      navigation.goBack();
+    },
+  });
 
   const { values, setFieldValue, handleSubmit } = useFormik<PlaceFormValues>({
     initialValues: {
@@ -31,15 +45,12 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
       location: { lat: 0, lng: 0 },
     },
     onSubmit: formValues => {
-      dispatch(
-        addPlace({
-          title: formValues.title,
-          imageUri: formValues.imageUri,
-          lat: formValues.location.lat,
-          lng: formValues.location.lng,
-        })
-      );
-      navigation.goBack();
+      mutate({
+        title: formValues.title,
+        imageUri: formValues.imageUri,
+        lat: formValues.location.lat,
+        lng: formValues.location.lng,
+      });
     },
   });
 
@@ -64,7 +75,11 @@ const NewPlaceScreen: React.FC<NewPlaceScreenProps> = ({ navigation }) => {
 
         <LocationSelector onLocationPicked={locationPickedHandler} />
 
-        <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
+        {isLoading ? (
+          <ActivityIndicator color={Colors.primary} />
+        ) : (
+          <Button title="Save Place" color={Colors.primary} onPress={() => handleSubmit()} />
+        )}
       </View>
     </ScrollView>
   );
